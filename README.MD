@@ -14,7 +14,7 @@ YouTube Downloader is a simple Python script built with Tkinter and Pytube that 
 
 The script is written in Python. Before using the YouTube Downloader, ensure you have Python installed on your machine.
 
-[Download Python](https://www.python.org/) download link at https://www.python.org/
+[Python](https://www.python.org/) download link at https://www.python.org/
 
 ## Installation
 
