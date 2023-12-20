@@ -21,7 +21,7 @@ The script is written in Python. Before using the YouTube Downloader, ensure you
 ### Clone the Repository:
 
 ```bash
-git clone https://github.com/yourusername/YouTube-Downloader.git
+git clone https://github.com/4rtsy2wo/Simple-YT-Downloader.git
 cd YouTube-Downloader
 pip install -r requirements.txt
 python ytDL.py
