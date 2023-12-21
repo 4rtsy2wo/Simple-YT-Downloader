@@ -66,8 +66,8 @@ jobs:
           echo "Enter Tag Name (press Enter to use default: 'v0.2.2')"
           read TAG_NAME
         env:
-          RELEASE_NAME: ${{ RELEASE_NAME }}
-          TAG_NAME: ${{ TAG_NAME }}
+          RELEASE_NAME: $RELEASE_NAME
+          TAG_NAME: $TAG_NAME
 
       - name: Create GitHub Release
         id: create_release
