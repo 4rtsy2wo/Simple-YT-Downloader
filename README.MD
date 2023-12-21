@@ -17,8 +17,9 @@ Thank you to the Pytube community for their valuable contribution.
 
 ## Standalone Build (No Prerequisites)
 
+**Download the Standalone Application =>** [Simple YT Downloader v0.2.2](https://github.com/4rtsy2wo/Simple-YT-Downloader/releases/tag/v0.2.2)
+
 Enjoy the convenience of a standalone application! No Python installation required – just download the standalone Windows .exe file.
-**Download the Standalone Application:** [Simple YT Downloader v0.2.2](https://github.com/4rtsy2wo/Simple-YT-Downloader/releases/tag/v0.2.2)
 
 ## Prerequisites for python install
 
