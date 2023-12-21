@@ -5,6 +5,18 @@ name: PyInstaller Manual Build
 # or API.
 on:
   workflow_dispatch:
+    inputs:
+      release_name:
+        description: "Release Name"
+        required: true
+        default: "YouTube_Downloader"
+      tag_name:
+        description: "Tag Name"
+        required: true
+        default: "v0.2.2"
+      release_body:
+        description: "Release Body"
+        required: false
 
 jobs:
   build_windows:
