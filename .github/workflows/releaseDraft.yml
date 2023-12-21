@@ -1,5 +1,5 @@
 # This is a basic workflow that is manually triggered
-name: PyInstaller Manual Build 
+name: PyInstaller Manual Build and Release
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
