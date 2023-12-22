@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from pytube import YouTube
 from pytube.exceptions import PytubeError, VideoUnavailable, AgeRestrictedError, MembersOnly, VideoPrivate, VideoRegionBlocked, LiveStreamError, RecordingUnavailable, MaxRetriesExceeded, HTMLParseError, ExtractError, RegexMatchError
+from pytube.helpers import safe_filename
 
 # version number
 version = "0.2.2"
@@ -75,8 +76,8 @@ def create_stream_button(stream_info, stream):
 # sanitize filename and add params
 def get_stream_filename(stream):
     name, ext = os.path.splitext(stream.default_filename)
-    filename = ''.join(c if c.isalnum() or c in [' ', '_', '-'] else '' for c in name)
-    filename = filename.replace(' ', '_').replace('-', '_')
+    # sanitize filename pytube
+    filename = safe_filename(name).replace(' ', '_')
     media_type = media_var.get().lower()
     codec_info = f"{stream.abr}_{stream.audio_codec.split('.')[0]}" if media_type == 'a' else f"{stream.resolution}_{stream.video_codec.split('.')[0]}"
     return f"{filename}_{codec_info}{ext}"
