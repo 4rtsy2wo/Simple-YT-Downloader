@@ -16,6 +16,7 @@ Thank you to the Pytube community for their valuable contribution.
 - Download the selected stream to your specified folder.
 
 ## Standalone Builds (No Prerequisites)
+
 Win/MacOS/Linux
 **Download the Standalone Application =>** [Simple YT Downloader v0.2.2](https://github.com/4rtsy2wo/Simple-YT-Downloader/releases/tag/v0.2.2)
 No Python installation required.
@@ -153,6 +154,11 @@ You can run this application now without python installed and with on click.
 - Added filename sanitizing
 - Appended Resolution/Average Bit Rate and codec to the end of the filename
 - Windows standalone build
+
+### 0.3.0
+
+- centered app window at start
+- seperated fetch and button logic
 
 ## Important Note
 

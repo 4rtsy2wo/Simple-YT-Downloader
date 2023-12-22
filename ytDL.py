@@ -1,5 +1,4 @@
 import os
-import pathlib
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from pytube import YouTube
@@ -29,13 +28,17 @@ def fetch_streams():
         yt = YouTube(video_url, on_progress_callback=download_progress, allow_oauth_cache=False, use_oauth=False)
         streams = yt.streams
         streams = filter_functions[media_choice](streams)
-        for stream in streams:
-            stream_info = get_stream_info(stream, media_choice)
-            stream_button = create_stream_button(stream_info, stream)
-            stream_button.pack(fill='x')
-            stream_buttons.append(stream_button)
+        display_streams(streams, media_choice)
     except PytubeError as e:
         handle_error(e)
+
+# display streams
+def display_streams(streams, media_choice):
+    for stream in streams:
+        stream_info = get_stream_info(stream, media_choice)
+        stream_button = create_stream_button(stream_info, stream)
+        stream_button.pack(fill='x')
+        stream_buttons.append(stream_button)
 
 # error handling
 def handle_error(e):
@@ -130,9 +133,9 @@ def create_pack(widget_type, master, pack_args={}, **kwargs):
     widget.pack(**pack_args)
     return widget
 
-# main window
+# window diplay in the middle of the screen
 window = tk.Tk()
-window.geometry("400x500")
+window.geometry(f"400x500+{int((window.winfo_screenwidth() / 2) - (400 / 2))}+{int((window.winfo_screenheight() / 2) - (500 / 2))}")
 window.resizable(False, True)
 window.title(f"YouTube Downloader v{version}")
 
