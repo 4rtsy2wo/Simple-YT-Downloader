@@ -17,6 +17,7 @@ Thank you to the Pytube community and especially to Juan Bindez for implementing
 
 - Fetch available streams for a given YouTube video link.
 - Choose between video with audio, audio-only, or video-only streams.
+- Switch to captions list for easy download of .srt subtitles.
 - Download the selected stream to your specified folder.
 
 ## Standalone Builds (No Prerequisites)
