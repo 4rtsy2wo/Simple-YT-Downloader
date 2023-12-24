@@ -1,7 +1,7 @@
 # Simple YouTube Downloader
 
-![Image 1](img/SS0.png)
-![Image 2](img/SS1.png)
+![Image 1](githubIMG/SS0.png)
+![Image 2](githubIMG/SS1.png)
 
 YouTube Downloader is a simple Python script built with [Pytube](https://github.com/pytube/pytube/tree/master) and Tkinter that empowers you to effortlessly download YouTube videos or audio streams. This application features a user-friendly interface, utilizing Tkinter for the GUI and Pytube for seamless YouTube content downloading.
 
