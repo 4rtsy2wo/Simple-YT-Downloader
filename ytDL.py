@@ -1,23 +1,31 @@
 import os
+import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-from pytube import YouTube
-from pytube.exceptions import PytubeError, VideoUnavailable, AgeRestrictedError, MembersOnly, VideoPrivate, VideoRegionBlocked, LiveStreamError, RecordingUnavailable, MaxRetriesExceeded, HTMLParseError, ExtractError, RegexMatchError
-from pytube.helpers import safe_filename
-from utils import xml_caption_to_srt
+from PIL import ImageTk, Image
+from datetime import timedelta
+import requests
+from pytubefix import YouTube
+from pytubefix.exceptions import PytubeFixError, VideoUnavailable, AgeRestrictedError, MembersOnly, VideoPrivate, VideoRegionBlocked, LiveStreamError, RecordingUnavailable, MaxRetriesExceeded, HTMLParseError, ExtractError, RegexMatchError
+from pytubefix.helpers import safe_filename
 
 # version number
 version = "0.3.0"
 # Set the main_path to a subfolder within the user's home directory
 main_path = os.path.join(os.path.expanduser('~'), 'YT_Downloader')
 # Dictionary to map media choices to sub directories
-sub_dirs = {'a': 'Audio_Only', 'v': 'Video_Only', 'av': 'Video_with_Audio', 'captions': 'Captions'}
-
-# Dictionary to map media choices to filter functions
+sub_dirs = {'a': 'Audio_Only', 'v': 'Video_Only', 'av': 'Video_with_Audio', 'c': 'Captions'}
+# Dic media choices to filter streams
 filter_functions = {
     'a': lambda streams: streams.filter(only_audio=True).order_by('abr').desc(),
     'v': lambda streams: streams.filter(only_video=True).order_by('resolution').desc(),
     'av': lambda streams: streams.filter(progressive=True).order_by('resolution').desc()
+}
+# Dic video info
+video_info = {
+    "title": "",
+    "length": "",
+    "thumbnail_url": ""
 }
     
 # error handling
@@ -73,54 +81,58 @@ def fetch_streams():
         streams = yt.streams
         streams = filter_functions[media_choice](streams)
         display_streams(streams, media_choice)
+        display_video_info(video_url)
         # check captions and switch button accordingly
         subtitle_button.config(state="normal" if len(yt.captions) > 0 else "disabled")
-    except PytubeError as e:
-        handle_error(e)
-        
+    except PytubeFixError as e:
+        handle_error(e)  
+
+# display thumbnail
+def display_thumbnail(thumbnail_url, label):
+    # Get the path to the 'img' folder in the bundled executable
+    img_folder = os.path.join(sys._MEIPASS, 'img') if getattr(sys, 'frozen', False) else './img'
+
+    # Use the included image file
+    img_path = os.path.join(img_folder, 'placeholder.png')
+
+    img = Image.open(requests.get(thumbnail_url, stream=True).raw) if thumbnail_url else Image.open(img_path)
+    img.thumbnail((180, 180))
+    thumbnail = ImageTk.PhotoImage(img)
+    label.config(image=thumbnail)
+    label.image = thumbnail
+
+# Get all video info
+def display_video_info(video_url):
+    yt = YouTube(video_url)
+    title = yt.title
+    length = str(timedelta(seconds=yt.length))
+    thumbnail_url = yt.thumbnail_url
+    # Update dictionary
+    video_info.update({
+        "title": title,
+        "length": length,
+        "thumbnail_url": thumbnail_url,
+    })
+    # Update labels
+    title_label.config(text=title)
+    length_label.config(text="Length: " + length)
+    display_thumbnail(thumbnail_url, placeholder_image)
+
 # get stream info
 def get_stream_info(stream, media_choice):
-    """
-    Get the information about a stream.
-
-    Parameters:
-    stream (object): The stream object.
-    media_choice (str): The media choice ('a' for audio, 'v' for video).
-
-    Returns:
-    str: The stream information.
-
-    """
     codec = stream.audio_codec if media_choice == 'a' else stream.video_codec
     return f"{stream.abr if media_choice == 'a' else stream.resolution} ({stream.mime_type} - {'Codec: ' + codec.split('.')[0] if media_choice == 'a' else str(stream.fps) + ' fps - Codec: ' + codec.split('.')[0]})"
 
-# display streams
+# create stream buttons and display
 def display_streams(streams, media_choice):
-    """
-    Display the available streams for the given media choice.
-
-    Args:
-        streams (list): List of streams to be displayed.
-        media_choice (str): The chosen media type.
-
-    Returns:
-        None
-    """
     for stream in streams:
         stream_info = get_stream_info(stream, media_choice)
         stream_button = create_stream_button(stream_info, stream)
         stream_button.pack(fill='x')
         stream_buttons.append(stream_button)
 
-# get captions and display    
+# get captions and create buttons + display 
 def get_and_display_captions():
-    """
-    Retrieves and displays the captions for a YouTube video.
-
-    This function takes the URL of a YouTube video as input and uses the `pytube` library to download the captions for that video.
-    It then creates buttons for each caption and displays them on the screen.
-
-    """
     yt = YouTube(url_entry.get())
     yt.bypass_age_gate()
     captions = yt.caption_tracks
@@ -134,10 +146,13 @@ def get_and_display_captions():
                
 # create stream buttons
 def create_stream_button(stream_info, stream):
-    return tk.Button(scrollable_frame, text=stream_info, fg='yellow', bg='black', command=lambda s=stream: download_media(s))
+    button = tk.Button(scrollable_frame, text=stream_info, fg='yellow', bg='black', command=lambda s=stream: download_media(s))
+    return button
+
 # create caption buttons
 def create_caption_button(caption):
-    return tk.Button(scrollable_frame, text=caption.name, fg='yellow', bg='black', command=lambda c=caption: download_caption(c.name, c.code))
+    button = tk.Button(scrollable_frame, text=caption.name, fg='yellow', bg='black', command=lambda c=caption: download_caption(c.code))
+    return button
 
 # sanitize filename - streams
 def get_stream_filename(stream):
@@ -149,10 +164,10 @@ def get_stream_filename(stream):
     return f"{filename}_{codec_info}{ext}"
 
 # sanitize filename - captions
-def get_caption_filename(captionName, vTitle):
+def get_caption_filename(vTitle):
     # sanitize filename pytube
-    filename = safe_filename(vTitle + "_" + captionName).replace(' ', '_')
-    return f"{filename}.srt"
+    filename = safe_filename(vTitle).replace(' ', '_')
+    return filename
 
 # download stream
 def download_media(stream):
@@ -161,22 +176,20 @@ def download_media(stream):
         stream.download(output_path=output_path, filename=get_stream_filename(stream))
         
         messagebox.showinfo("Download Complete", "Download complete.")
-    except PytubeError as e:
+    except PytubeFixError as e:
         messagebox.showerror("Error", f"An error occurred during download: {e}")
         
-# download caption
-def download_caption(captionName, code):
+# download caption               
+def download_caption(code):
     try:
         yt = YouTube(url_entry.get())
-        yt.bypass_age_gate()
-        srt_captions = xml_caption_to_srt(yt.captions[code].xml_captions)
-
-        output_path = os.path.join(main_path, sub_dirs['captions'])
+        caption = yt.captions[code]  # Use the language code as the key
+        
+        output_path = os.path.join(main_path, sub_dirs['c'])
         os.makedirs(output_path, exist_ok=True)
 
-        filename = get_caption_filename(captionName, yt.title)
-        with open(os.path.join(output_path, filename), 'w', encoding='utf-8') as f:
-            f.write(srt_captions)
+        filename = get_caption_filename(yt.title)
+        caption.download(title=filename, output_path=output_path, srt=True)
             
         messagebox.showinfo("Download Complete", "Caption downloaded.")
     except Exception as e:
@@ -184,10 +197,6 @@ def download_caption(captionName, code):
         
 # change download folder
 def select_download_folder():
-    """
-    Opens a file dialog to select a download folder and updates the main_path variable.
-    
-    """
     folder_selected = filedialog.askdirectory()
     if folder_selected:
         global main_path
@@ -251,7 +260,7 @@ def create_pack(widget_type, master, pack_args={}, **kwargs):
 
 # window diplay in the middle of the screen
 window = tk.Tk()
-window.geometry(f"400x500+{int((window.winfo_screenwidth() / 2) - (400 / 2))}+{int((window.winfo_screenheight() / 2) - (500 / 2))}")
+window.geometry(f"400x600+{int((window.winfo_screenwidth() / 2) - (400 / 2))}+{int((window.winfo_screenheight() / 2) - (500 / 2))}")
 window.resizable(False, True)
 window.title(f"YouTube Downloader v{version}")
 
@@ -260,21 +269,33 @@ url_frame = create_pack(tk.Frame, window, pack_args={'side': 'top', 'pady': 5})
 url_label = create_pack(tk.Label, window, text="⛓ YouTube Link:", font=('monospace'), pack_args={'side': 'top', 'fill': 'x'})
 url_entry = create_pack(tk.Entry, window, font=('monospace', 10), pack_args={'side': 'top', 'fill': 'x', 'padx': 10, 'pady': 5})
 
+# thumbnail frame
+thumbnail_frame = create_pack(tk.Frame, window, pack_args={'side': 'top', 'fill': 'x'})
+# Create the thumbnail label without an image
+placeholder_image = create_pack(tk.Label, thumbnail_frame, pack_args={'side': 'left', 'padx': 20, 'pady': 5})
+# Now you can call display_thumbnail
+display_thumbnail('', placeholder_image)
+
 # media choice
-media_frame = create_pack(tk.Frame, window, pack_args={'side': 'top', 'pady': 10})
+media_frame = create_pack(tk.Frame, thumbnail_frame, pack_args={'side': 'left','pady': 10})
 media_label = create_pack(tk.Label, media_frame, text="🎥 Choose Media:", font=('monospace'), pack_args={'side': 'top'})
 media_var = tk.StringVar(value="AV")
 media_choices = [("Video with Audio", "AV"),("Audio Only", "A"), ("Video Only", "V")]
 for text, choice in media_choices:
-    create_pack(tk.Radiobutton, media_frame, text=text, variable=media_var, value=choice, font=('monospace',), pack_args={'side': 'left'})
+    create_pack(tk.Radiobutton, media_frame, text=text, variable=media_var, value=choice, font=('monospace',), pack_args={'side': 'top'})
+# length label
+length_label = create_pack(tk.Label, media_frame, text="Length: " + str(video_info["length"]), font=('monospace'), pack_args={'side': 'top', 'fill': 'x'})
 
 # instruction label
 instruction_label = create_pack(tk.Label, window, text="|| Retrieve the streams and click to download ||", font=('monospace'))
 
 # fetch stream and caption button
-button_frame = create_pack(tk.Frame, window, pack_args={'side': 'top', 'pady': 10})
-fetch_button = create_pack(tk.Button, button_frame, text="Get Streams 🎬", font=('monospace'), bg='red', fg='white', bd=5, relief='solid', command=fetch_streams, pack_args={'side': 'left', 'padx': 5, 'pady': 10})
-subtitle_button = create_pack(tk.Button, button_frame, text="Captions 📝", font=('monospace'), state="disabled", command=get_and_display_captions, pack_args={'side': 'left', 'padx': 5, 'pady': 10})
+button_frame = create_pack(tk.Frame, window, pack_args={'side': 'top', 'pady': 5})
+fetch_button = create_pack(tk.Button, button_frame, text="Get Streams 🎬", font=('monospace'), bg='red', fg='white', bd=5, relief='solid', command=fetch_streams, pack_args={'side': 'left', 'padx': 5, 'pady': 5})
+subtitle_button = create_pack(tk.Button, button_frame, text="Captions 📝", font=('monospace'), state="disabled", command=get_and_display_captions, pack_args={'side': 'left', 'padx': 5, 'pady': 5})
+
+# title label
+title_label = create_pack(tk.Label, window, text=video_info["title"], font=('monospace'), wraplength=380, anchor='center', justify='center', pack_args={'side': 'top', 'fill': 'x', 'padx': 5})
 
 # progress bar
 progress_frame = create_pack(tk.Frame, window, pack_args={'side': 'bottom', 'fill': 'x', 'expand': True, 'pady': 5, 'padx': 14})
@@ -288,7 +309,7 @@ folder_path_entry = create_pack(tk.Entry, folder_frame, font=('monospace', 10), 
 folder_path_entry.insert(0, main_path)
 
 # window frame + canvas + scrollbar
-streams_frame = create_pack(tk.Frame, window, pack_args={'side': 'top', 'fill': 'both', 'expand': True, 'pady': 10})
+streams_frame = create_pack(tk.Frame, window, pack_args={'side': 'top', 'fill': 'both', 'expand': True, 'pady': 5})
 streams_canvas = create_pack(tk.Canvas, streams_frame)
 scrollbar = create_pack(tk.Scrollbar, streams_frame, orient="vertical", command=streams_canvas.yview, pack_args={'side': "right", 'fill': "y"})
 streams_canvas.pack(side="left", fill="both", expand=True)
