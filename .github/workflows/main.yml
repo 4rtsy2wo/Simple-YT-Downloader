@@ -29,7 +29,7 @@ jobs:
           spec: "ytDL.py"
           requirements: "requirements.txt"
           upload_exe_with_name: "YouTube_Downloader-Windows"
-          options: '--onefile --add-data "img;img" --noconsole --name "YouTube_Downloader"'
+          options: '--onefile --add-data "img:img" --noconsole --name "YouTube_Downloader"'
 
   build_linux:
     runs-on: ubuntu-latest
@@ -41,7 +41,7 @@ jobs:
           spec: "ytDL.py"
           requirements: "requirements.txt"
           upload_exe_with_name: "YouTube_Downloader-Linux"
-          options: '--onefile --add-data "img;img" --noconsole --name "YouTube_Downloader"'
+          options: '--onefile --add-data "img:img" --noconsole --name "YouTube_Downloader"'
 
   build_macos:
     runs-on: macos-latest
@@ -53,4 +53,4 @@ jobs:
           spec: "ytDL.py"
           requirements: "requirements.txt"
           upload_exe_with_name: "YouTube_Downloader-MacOS"
-          options: '--onefile --add-data "img;img" --noconsole --name "YouTube_Downloader"'
+          options: '--onefile --add-data "img:img" --noconsole --name "YouTube_Downloader"'
