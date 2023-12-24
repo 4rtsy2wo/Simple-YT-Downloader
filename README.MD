@@ -159,6 +159,7 @@ You can run this application now without python installed and with on click.
 
 - centered app window at start
 - seperated fetch and button logic
+- download available captions for streams
 
 ## Important Note
 
