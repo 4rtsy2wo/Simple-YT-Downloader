@@ -10,7 +10,7 @@ from pytubefix.exceptions import PytubeFixError, VideoUnavailable, AgeRestricted
 from pytubefix.helpers import safe_filename
 
 # version number
-version = "0.4.0"
+version = "0.5.0"
 # Set the main_path to a subfolder within the user's home directory
 main_path = os.path.join(os.path.expanduser('~'), 'YT_Downloader')
 # Dictionary to map media choices to sub directories
