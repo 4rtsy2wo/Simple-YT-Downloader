@@ -173,6 +173,10 @@ You can run this application now without python installed and with on click.
 - added length for url
 - couple of changes reverted due working pytubfix fork
 
+### 0.5.0
+
+- pytubfix lib only
+
 ## Important Note
 
 Downloading copyrighted content without permission may violate YouTube's terms of service. Make sure you have the right to download and use the content you are downloading.

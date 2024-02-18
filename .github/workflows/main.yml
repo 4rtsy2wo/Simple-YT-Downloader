@@ -23,7 +23,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Create Windows Executable
-        uses: sayyid5416/pyinstaller@v1
+        uses: sayyid5416/pyinstaller@v1.5.1
         with:
           python_ver: "3.12"
           spec: "ytDL.py"
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Create Linux Executable
-        uses: sayyid5416/pyinstaller@v1
+        uses: sayyid5416/pyinstaller@v1.5.1
         with:
           python_ver: "3.12"
           spec: "ytDL.py"
@@ -47,7 +47,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Create MacOS Executable
-        uses: sayyid5416/pyinstaller@v1
+        uses: sayyid5416/pyinstaller@v1.5.1
         with:
           python_ver: "3.12"
           spec: "ytDL.py"
